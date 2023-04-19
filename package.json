@@ -15,6 +15,6 @@
   },
   "dependencies": {
     "@honojs/validator": "^0.1.2",
-    "hono": "^3.1.6"
+    "hono": "^2.0.9"
   }
 }
