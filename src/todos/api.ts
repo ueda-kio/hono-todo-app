@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { validation } from '@honojs/validator';
 
 // TODO: let to const
 let todoList = [
@@ -11,17 +12,25 @@ let todoList = [
 const todos = new Hono();
 todos.get('/', (c) => c.json(todoList));
 
-todos.post('/', async (c) => {
-	const param = await c.req.json<{ title: string }>();
-	const newTodo = {
-		id: String(todoList.length + 1),
-		completed: false,
-		title: param.title,
-	};
-	todoList = [...todoList, newTodo];
+todos.post(
+	'/',
+	validation((v, message) => ({
+		body: {
+			title: [v.trim, [v.required, message('Title is required')]],
+		},
+	})),
+	async (c) => {
+		const param = await c.req.json<{ title: string }>();
+		const newTodo = {
+			id: String(todoList.length + 1),
+			completed: false,
+			title: param.title,
+		};
+		todoList = [...todoList, newTodo];
 
-	return c.json(newTodo, 201);
-});
+		return c.json(newTodo, 201);
+	}
+);
 
 todos.put('/:id', async (c) => {
 	const id = c.req.param('id');
